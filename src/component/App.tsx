@@ -1,7 +1,7 @@
 import { defineComponent, ref } from 'vue';
-// import MonacoEditor from './monaco/index';
-import MonacoEditor from '../../dist/index';
-import '../../dist/index.css';
+import MonacoEditor from './monaco/index';
+// import MonacoEditor from '../../dist/index';
+// import '../../dist/index.css';
 
 export default defineComponent({
   name: 'Demo',
