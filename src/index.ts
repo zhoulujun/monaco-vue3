@@ -1,10 +1,6 @@
-import loader from '@monaco-editor/loader'
-import Editor from './components/editor'
-import MonacoContainer from './components/monacoContainer'
-import { useMonaco } from './hooks'
+import MonacoEditor from './component/monaco';
 
-export type { MonacoContainerProps } from './components/monacoContainer'
-export type { EditorProps } from './components/editor'
-
-export { MonacoContainer, loader, useMonaco }
-export default Editor
+MonacoEditor.install = (app: any) => {
+  app.component(MonacoEditor.name, MonacoEditor);
+};
+export default MonacoEditor;

@@ -1,34 +1,47 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
-    "target": "esnext",
-    "useDefineForClassFields": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+//    "noImplicitAny": false,
+    "target": "esnext",/* 编译目标ES版本*/
+    "module": "esnext",/* 编译目标模块系统*/
+    "moduleResolution": "node",/* 模块解析策略 */
+    "sourceMap": true,
+    "pretty": true,
     "strict": true,
     "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
-    "skipLibCheck": true,
+    "esModuleInterop": true,/* 允许编译生成文件时，在代码中注入工具类(__importDefault、__importStar)对ESM与commonjs混用情况做兼容处理*/
+    "lib": [/* 编译过程中需要引入的库文件列表*/
+      "esnext",
+      "dom"
+    ],
+    "outDir": "dist",
+    "rootDir": "./",
+    "baseUrl": "./",
     "paths": {
-      "@hooks": ["src/hooks"],
-      "@hooks/*": ["src/hooks/*"],
-      "@components": ["src/components"],
-      "@components/*": ["src/components/*"],
-      "@utils": ["src/utils"],
-      "@utils/*": ["src/utils/*"]
+      "@/*": ["./src/*"],
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.d.ts",
-    "**/*.tsx",
-    "**/*.vue",
-    "**/*.md",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
   ],
-  "exclude": ["node_modules", "lib", "dist"]
+  "exclude": [
+    "node_modules",
+    "plugins",
+    "env.ts",
+    "babel.config.js",
+    "bk.config.js",
+    ".eslintrc.js",
+    "webpack.config.js",
+    "test"
+  ]
 }
