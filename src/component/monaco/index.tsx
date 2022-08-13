@@ -187,7 +187,6 @@ export default defineComponent({
     function fullScreen() {
       isFull.value = !isFull.value;
       nextTick(() => {
-        debugger;
         editor?.layout();
       });
     }
