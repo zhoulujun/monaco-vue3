@@ -126,7 +126,11 @@ export default defineComponent({
       }
       await props?.onBeforeMount(monaco, dom.value);
       editor = monaco.editor.create(dom.value, {
-        value: modelValue, language, theme, ...options,
+        value: modelValue,
+        language,
+        theme,
+        wordWrap: 'on',
+        ...options,
       });
       loading.value = false;
       editor.onDidChangeModelContent(() => {
@@ -231,7 +235,6 @@ export default defineComponent({
             >
                 {this.loading ? this.$slots.loading?.() ?? '' : ''}
                 {this.toolsRender()}
-
                 <div ref='dom' class='monaco-editor-content'/>
             </div>
     );
