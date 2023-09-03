@@ -5,84 +5,24 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
-  PropType,
   ref,
   watch,
 } from 'vue';
 import * as monaco from 'monaco-editor';
-import { promLanguageDefinition } from 'monaco-promql';
 import './index.scss';
 import { bkTooltips } from 'bkui-vue';
 import { Code, UnfullScreen, FilliscreenLine } from 'bkui-vue/lib/icon';
 import { format } from 'sql-formatter';
+import { props } from '@/component/monaco/props';
+
 
 export default defineComponent({
   name: 'MonacoEditor',
   directives: { bkTooltips },
-  props: {
-    modelValue: {
-      type: String,
-      default: '',
-    },
-    original: {
-      type: String,
-      default: '',
-    },
-    showToolbox: {
-      type: Boolean,
-      default: true,
-    },
-    diffEditor: {
-      type: Boolean,
-      default: false,
-    },
-    isFull: {
-      type: Boolean,
-      default: false,
-    },
-    language: {
-      type: String,
-      default: 'sql',
-    },
-    line: {
-      type: Number,
-      default: null,
-    },
-    width: {
-      type: String || Number,
-      default: '100%',
-    },
-    height: {
-      type: String || Number,
-      default: '100%',
-    },
-    keywords: {
-      type: Array as PropType<string[]>,
-      default: (): string[] => [],
-    },
-    theme: {
-      type: String,
-      default: 'vs-dark',
-    },
-    onBeforeMount: {
-      type: Function as PropType<(monacoLib: any, dom: HTMLElement) => any>,
-    },
-    options: {
-      type: Object as PropType<Record<string, any>>,
-      default: () => ({}),
-    },
-    tooltips: {
-      type: Object as PropType<Record<string, string>>,
-      default: null,
-    },
-    isShowTooltips: {
-      type: Boolean,
-      default: true,
-    },
-  },
+  props,
   emits: ['update:modelValue', 'change', 'editorMounted'],
   setup(props, { emit, slots }) {
-    let editor: monaco.editor.IStandaloneCodeEditor;
+    const editor = ref<monaco.editor.IStandaloneCodeEditor>(null);
     const dom = ref<HTMLElement>();
     const isFull = ref(false);
     const loading = ref(true);
@@ -133,32 +73,10 @@ export default defineComponent({
         return;
       }
       const { modelValue, language, theme, options } = props;
-      if (language === 'promql') {
-        const languageId = promLanguageDefinition.id;
-        monaco.languages.register(promLanguageDefinition);
-        monaco.languages.onLanguage(languageId, () => {
-          promLanguageDefinition.loader().then((mod: any) => {
-            const obj = mod.completionItemProvider.provideCompletionItems();
-            let arr = [...obj.suggestions];
-            arr = arr.map(ele => ({ ...ele, detail: 'Function' }));
-            const list = props.keywords.map(keyword => (
-              { label: keyword, insertText: keyword, kind: 17, insertTextRules: 4, detail: 'Metric' }
-            ));
-            arr = arr.concat(list);
-            console.log('mod.language', mod.language);
-
-            monaco.languages.setMonarchTokensProvider(languageId, mod.language);
-            monaco.languages.setLanguageConfiguration(languageId, mod.languageConfiguration);
-            monaco.languages.registerCompletionItemProvider(languageId, {
-              provideCompletionItems: () => ({ suggestions: arr }),
-            });
-          });
-        });
-      }
       if (typeof props?.onBeforeMount === 'function') {
         await props?.onBeforeMount?.(monaco, dom.value);
       }
-      editor = monaco.editor.create(dom.value, {
+      editor.value = monaco.editor.create(dom.value, {
         value: modelValue,
         language,
         theme,
@@ -166,79 +84,78 @@ export default defineComponent({
         ...options,
       });
       loading.value = false;
-      editor.onDidChangeModelContent(() => {
-        const value = editor.getValue() || '';
+      editor.value.onDidChangeModelContent(() => {
+        const value = editor.value.getValue() || '';
         emit('update:modelValue', value);
         emit('change', value);
       });
       emit('editorMounted', editor, dom.value);
     }
 
+    function clearMistake() {
+      monaco.editor.setModelMarkers(
+        editor.value.getModel(),
+        'eslint',
+        [],
+      );
+    }
+
+    function markMistake(range: any, type: keyof typeof monaco.MarkerSeverity, message: string) {
+      const { startLineNumber, endLineNumber, startColumn, endColumn } = range;
+      monaco.editor.setModelMarkers(
+        editor.value.getModel(),
+        'eslint',
+        [{
+          startLineNumber,
+          endLineNumber,
+          startColumn,
+          endColumn,
+          severity: monaco.MarkerSeverity[type], // type可以是Error,Warning,Info
+          message,
+        }],
+      );
+    }
+
+    function formatSql(needValue: number) {
+      clearMistake();
+      try {
+        editor.value.setValue(format(editor.value.getValue()));
+      } catch (e) {
+        const { message } = e;
+        const list = message.split(' ');
+        const line = list.indexOf('line');
+        const column = list.indexOf('column');
+        markMistake({
+          startLineNumber: Number(list[line + 1]),
+          endLineNumber: Number(list[line + 1]),
+          startColumn: Number(list[column + 1]),
+          endColumn: Number(list[column + 1]),
+        }, 'Error', message);
+      }
+      if (needValue) {
+        return editor.value.getValue();
+      }
+    }
+
 
     function formatContext() {
-      // const action = editor?.getAction('editor.action.formatDocument');
-      // action.run();
-      // @ts-ignore
       if (props.language === 'sql') {
-        try {
-          editor?.setValue(format(editor.getValue()));
-        } catch (e) {
-          console.error(e);
-        }
+        formatSql(0);
         return;
       }
       // @ts-ignore
-      editor?.trigger('anyString', 'editor.action.formatDocument');
+      editor.value?.trigger('anyString', 'editor.action.formatDocument');
       try {
-        editor?.setValue(editor?.getValue());
+        editor.value?.setValue(editor.value?.getValue());
       } catch (e) {
         console.error(e);
       }
     }
 
-    onMounted(() => {
-      initMonaco();
-    });
-    onUnmounted(() => {
-      editor?.dispose();
-      editor = null;
-    });
-    watch(
-      () => props.modelValue,
-      (newVal) => {
-        if (editor && newVal !== editor.getValue()) {
-          editor.setValue(newVal);
-        }
-      },
-    );
-    watch(
-      () => props.language,
-      (language) => {
-        if (language && editor) {
-          const model = editor.getModel();
-          model && monaco.editor.setModelLanguage(model, language);
-        }
-      },
-    );
-    watch(
-      () => props.theme,
-      (theme) => {
-        if (theme && editor) {
-          monaco.editor.setTheme(theme);
-        }
-      },
-    );
-    watch(
-      () => props.line,
-      (line) => {
-        line && editor?.revealLine(line!);
-      },
-    );
-
     function fullScreen() {
       isFull.value = !isFull.value;
       nextTick(() => {
-        editor?.layout();
+        editor.value?.layout();
       });
     }
 
@@ -281,6 +198,46 @@ export default defineComponent({
         </div>
       );
     }
+
+
+    onMounted(() => {
+      initMonaco();
+    });
+    onUnmounted(() => {
+      editor.value?.dispose();
+      editor.value = null;
+    });
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        if (editor.value && newVal !== editor.value.getValue()) {
+          editor.value.setValue(newVal);
+        }
+      },
+    );
+    watch(
+      () => props.language,
+      (language) => {
+        if (language && editor) {
+          const model = editor.value.getModel();
+          model && monaco.editor.setModelLanguage(model, language);
+        }
+      },
+    );
+    watch(
+      () => props.theme,
+      (theme) => {
+        if (theme && editor) {
+          monaco.editor.setTheme(theme);
+        }
+      },
+    );
+    watch(
+      () => props.line,
+      (line) => {
+        line && editor.value?.revealLine(line!);
+      },
+    );
 
     return {
       style,

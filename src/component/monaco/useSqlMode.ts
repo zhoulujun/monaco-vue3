@@ -20,7 +20,7 @@ export default function useSqlMode(
     // 触发条件，也可以不写，不写的话只要输入满足配置的label就会提示；仅支持单字符
     triggerCharacters: ['.', ' '],
     provideCompletionItems: (model, position) => {
-      let suggestions: any[] = [];
+      let suggestions: any[] = getSQLSuggest();
       const { lineNumber, column } = position;
       const textBeforePointer = model.getValueInRange({
         startLineNumber: lineNumber,
@@ -47,15 +47,8 @@ export default function useSqlMode(
           if (lastToken5 + lastToken4 + lastToken3 === 'select*from') {
             // select * from tableName where 提示指定表的字段名
             suggestions = [getParamSuggest(lastToken2)];
-          } else {
-            suggestions = [];
           }
-        } else {
-          suggestions = [];
         }
-      } else {
-        // 提示数据库名和关键词
-        suggestions = [getSQLSuggest()];
       }
       return {
         suggestions,
