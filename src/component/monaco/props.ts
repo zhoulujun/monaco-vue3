@@ -50,7 +50,6 @@ export const props = {
   },
   tooltips: {
     type: Object as PropType<Record<string, string>>,
-    default: (): Record<string, string> => ({}),
   },
   isShowTooltips: {
     type: Boolean,

@@ -45,7 +45,7 @@ export default defineComponent({
     const tooltips: Record<string, string> = getTooltips();
 
     function getTooltips() {
-      if (props.tooltips) {
+      if (props?.tooltips) {
         return props.tooltips;
       }
       const currentLang = localStorage.getItem('blueking_language');
