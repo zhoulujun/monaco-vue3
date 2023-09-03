@@ -1,6 +1,6 @@
 {
   "name": "monaco-vue3-editor",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "monaco vue3 editor，集成了 monaco-promql,简单易用的代码编辑器。",
   "main": "dist/index.js",
   "scripts": {
@@ -31,12 +31,12 @@
   "dependencies": {
     "bkui-vue": "^0.0.2-beta.25",
     "lodash": "^4.17.21",
-    "monaco-editor": "^0.34.0",
+    "monaco-editor": "^0.41.0",
     "monaco-editor-webpack-plugin": "^7.0.1"
   },
   "peerDependencies": {
     "bkui-vue": "^0.0.2-beta.25",
-    "monaco-editor": "^0.34.0",
+    "monaco-editor": "^0.41.0",
     "monaco-promql": "^1.7.4",
     "vue": "^3.2.37"
   },
