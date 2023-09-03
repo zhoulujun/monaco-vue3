@@ -5,7 +5,7 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
-  ref,
+  ref, shallowRef,
   watch,
 } from 'vue';
 import * as monaco from 'monaco-editor';
@@ -22,7 +22,7 @@ export default defineComponent({
   props,
   emits: ['update:modelValue', 'change', 'editorMounted'],
   setup(props, { emit, slots }) {
-    const editor = ref<monaco.editor.IStandaloneCodeEditor>(null);
+    const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>(null);
     const dom = ref<HTMLElement>();
     const isFull = ref(false);
     const loading = ref(true);
@@ -230,12 +230,6 @@ export default defineComponent({
         if (theme && editor) {
           monaco.editor.setTheme(theme);
         }
-      },
-    );
-    watch(
-      () => props.line,
-      (line) => {
-        line && editor.value?.revealLine(line!);
       },
     );
 

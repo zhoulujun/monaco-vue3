@@ -25,10 +25,6 @@ export const props = {
     type: String,
     default: 'sql',
   },
-  line: {
-    type: Number,
-    default: 0,
-  },
   width: {
     type: String || Number,
     default: '100%',
