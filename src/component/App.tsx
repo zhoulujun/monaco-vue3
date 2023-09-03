@@ -15,20 +15,20 @@ export default defineComponent({
   },
   render() {
     return (
-            <div class='full-page'>
-                <div>title</div>
-                <div style='height:400px;'>
-                    <MonacoEditor
-                        theme='vs-dark'
-                        language='sql'
-                        v-model={this.formData.query_text}
-                    >
-                        {{
-                          loading: () => (<div>2222</div>),
-                        }}
-                    </MonacoEditor>
-                </div>
-            </div>
+      <div class="full-page">
+        <div>title</div>
+        <div style="height:400px;">
+          <MonacoEditor
+            theme="vs-dark"
+            language="sql"
+            v-model={this.formData.query_text}
+          >
+            {{
+              loading: () => (<div>2222</div>),
+            }}
+          </MonacoEditor>
+        </div>
+      </div>
     );
   },
 

@@ -14,34 +14,7 @@ import { promLanguageDefinition } from 'monaco-promql';
 import './index.scss';
 import { bkTooltips } from 'bkui-vue';
 import { Code, UnfullScreen, FilliscreenLine } from 'bkui-vue/lib/icon';
-// const monaco = await import(/* webpackPrefetch: true;" */'monaco-editor');
-
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import { format } from 'sql-formatter';
-import { language } from 'monaco-promql/promql/promql';
-
-monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-
-if (!window.MonacoEnvironment) {
-  window.MonacoEnvironment = {
-    // 提供一个定义worker路径的全局变量
-    getWorker(_: any, label: string) {
-      if (label === 'json') {
-        // eslint-disable-next-line new-cap
-        return new jsonWorker();
-      }
-      if (label === 'typescript' || label === 'javascript') {
-        // eslint-disable-next-line new-cap
-        return new tsWorker();
-      }
-      // eslint-disable-next-line new-cap
-      return new editorWorker(); // 基础功能文件， 提供了所有语言通用功能 无论使用什么语言，monaco都会去加载他。
-    },
-  };
-}
-
 
 export default defineComponent({
   name: 'MonacoEditor',
