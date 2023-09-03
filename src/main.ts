@@ -4,5 +4,7 @@
 
 import { createApp } from 'vue';
 import App from './component/App';
+
+
 createApp(App).mount('#app');
 

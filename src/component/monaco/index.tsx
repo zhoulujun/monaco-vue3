@@ -11,14 +11,41 @@ import {
 } from 'vue';
 import * as monaco from 'monaco-editor';
 import { promLanguageDefinition } from 'monaco-promql';
-import Code from '../icons/code';
-import FullScreen from '../icons/filliscreen-line';
-import UnFullScreen from '../icons/unfull-screen';
 import './index.scss';
+import { bkTooltips } from 'bkui-vue';
+import { Code, UnfullScreen, FilliscreenLine } from 'bkui-vue/lib/icon';
 // const monaco = await import(/* webpackPrefetch: true;" */'monaco-editor');
+
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import { format } from 'sql-formatter';
+import { language } from 'monaco-promql/promql/promql';
+
+monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+
+if (!window.MonacoEnvironment) {
+  window.MonacoEnvironment = {
+    // 提供一个定义worker路径的全局变量
+    getWorker(_: any, label: string) {
+      if (label === 'json') {
+        // eslint-disable-next-line new-cap
+        return new jsonWorker();
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        // eslint-disable-next-line new-cap
+        return new tsWorker();
+      }
+      // eslint-disable-next-line new-cap
+      return new editorWorker(); // 基础功能文件， 提供了所有语言通用功能 无论使用什么语言，monaco都会去加载他。
+    },
+  };
+}
+
 
 export default defineComponent({
   name: 'MonacoEditor',
+  directives: { bkTooltips },
   props: {
     modelValue: {
       type: String,
@@ -58,19 +85,26 @@ export default defineComponent({
     },
     keywords: {
       type: Array as PropType<string[]>,
-      default: 'sql',
+      default: (): string[] => [],
     },
     theme: {
       type: String,
       default: 'vs-dark',
     },
     onBeforeMount: {
-      type: Function,
-      default() {},
+      type: Function as PropType<(monacoLib: any, dom: HTMLElement) => any>,
     },
     options: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({}),
+    },
+    tooltips: {
+      type: Object as PropType<Record<string, string>>,
+      default: null,
+    },
+    isShowTooltips: {
+      type: Boolean,
+      default: true,
     },
   },
   emits: ['update:modelValue', 'change', 'editorMounted'],
@@ -95,8 +129,32 @@ export default defineComponent({
         height: typeof props.height === 'number' ? `${props.height}px` : props.height,
       };
     });
+    const tooltips: Record<string, string> = getTooltips();
 
-    async function  initMonaco() {
+    function getTooltips() {
+      if (props.tooltips) {
+        return props.tooltips;
+      }
+      const currentLang = localStorage.getItem('blueking_language');
+
+      if (currentLang !== 'zh-cn') {
+        return {
+          format: 'Format',
+          fullScreen: 'Full Screen',
+          exitScreen: 'Exit Full Screen',
+          adjustFontSize: 'Adjusting the font size',
+        };
+      }
+      return {
+        format: '格式化',
+        fullScreen: '全屏',
+        exitScreen: '退出全屏',
+        adjustFontSize: '调整字号大小',
+      };
+    }
+
+
+    async function initMonaco() {
       if (!dom.value) {
         console.error('monaco editor dom is null');
         return;
@@ -124,7 +182,9 @@ export default defineComponent({
           });
         });
       }
-      await props?.onBeforeMount(monaco, dom.value);
+      if (typeof props?.onBeforeMount === 'function') {
+        await props?.onBeforeMount?.(monaco, dom.value);
+      }
       editor = monaco.editor.create(dom.value, {
         value: modelValue,
         language,
@@ -142,11 +202,25 @@ export default defineComponent({
     }
 
 
-    function format() {
-      // editor?.getAction('editor.action.formatDocument')
+    function formatContext() {
+      // const action = editor?.getAction('editor.action.formatDocument');
+      // action.run();
+      // @ts-ignore
+      if (props.language === 'sql') {
+        try {
+          editor?.setValue(format(editor.getValue()));
+        } catch (e) {
+          console.error(e);
+        }
+        return;
+      }
       // @ts-ignore
       editor?.trigger('anyString', 'editor.action.formatDocument');
-      // editor?.setValue(editor?.getValue())
+      try {
+        editor?.setValue(editor?.getValue());
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     onMounted(() => {
@@ -199,29 +273,45 @@ export default defineComponent({
       if (!props.showToolbox) {
         return null;
       }
-      if (slots?.tools) {
+      if (typeof slots?.tools === 'function') {
         return slots?.tools(editor);
       }
+      if (!props.isShowTooltips) {
+        return (
+          <div class="monaco-editor-toolbox">
+            <div class="tools-item" onClick={formatContext}>
+              <Code/>
+            </div>
+            <div class="tools-item" onClick={fullScreen}>
+              {isFull.value ? <UnfullScreen/> : <FilliscreenLine/>}
+            </div>
+          </div>
+        );
+      }
+      // {...(props.isShowTooltips ? { 'v-bkTooltips': { content: tooltips.format } } : {})}
       return (
-                <div class='monaco-editor-toolbox'>
-                    <div
-                        class='tools-item'
-                        onClick={format}
-                    >
-                        <Code/>
-                    </div>
-                    <div
-                        class='tools-item'
-                        onClick={fullScreen}
-                    >
-                        {isFull.value ? <UnFullScreen/> : <FullScreen/>}
-                    </div>
-                </div>
+        <div class="monaco-editor-toolbox">
+          <div
+            v-bkTooltips={{ content: tooltips.format }}
+            class="tools-item"
+            onClick={formatContext}
+          >
+            <Code/>
+          </div>
+          <div
+            v-bkTooltips={{ content: isFull.value ? tooltips.exitScreen : tooltips.fullScreen }}
+            class="tools-item"
+            onClick={fullScreen}
+          >
+            {isFull.value ? <UnfullScreen/> : <FilliscreenLine/>}
+          </div>
+        </div>
       );
     }
 
     return {
       style,
+      editor,
       toolsRender,
       dom,
       loading,
@@ -229,14 +319,14 @@ export default defineComponent({
   },
   render() {
     return (
-            <div
-                class='monaco-editor-wrap monaco-editor'
-                style={this.style}
-            >
-                {this.loading ? this.$slots.loading?.() ?? '' : ''}
-                {this.toolsRender()}
-                <div ref='dom' class='monaco-editor-content'/>
-            </div>
+      <div
+        class="monaco-editor-wrap monaco-editor"
+        style={this.style}
+      >
+        {this.loading ? this.$slots.loading?.() ?? '' : ''}
+        {this.toolsRender()}
+        <div ref="dom" class="monaco-editor-content"/>
+      </div>
     );
   },
 });
