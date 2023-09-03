@@ -1,21 +1,12 @@
 import * as monaco from 'monaco-editor';
-import { format } from 'sql-formatter';
 import sqlKeywords from '@/component/monaco/sqlKeywords';
+import { onBeforeMount } from 'vue';
 
 export default function useSqlMode(
-  editor: monaco.editor.IStandaloneCodeEditor,
   tableNames: string[],
   tableFields: Record<string, []>,
   dbName: string,
 ) {
-  // const formatProvider = monaco.languages.registerDocumentFormattingEditProvider('sql', {
-  //   provideDocumentFormattingEdits(model) {
-  //     return [{
-  //       text: formatSql(1),
-  //       range: model.getFullModelRange(),
-  //     }];
-  //   },
-  // });
   const suggestion = monaco.languages.registerCompletionItemProvider('sql', {
     // 触发条件，也可以不写，不写的话只要输入满足配置的label就会提示；仅支持单字符
     triggerCharacters: ['.', ' '],
@@ -65,51 +56,6 @@ export default function useSqlMode(
     }));
   }
 
-  function clearMistake() {
-    monaco.editor.setModelMarkers(
-      editor.getModel(),
-      'eslint',
-      [],
-    );
-  }
-
-  function markMistake(range: any, type: keyof typeof monaco.MarkerSeverity, message: string) {
-    const { startLineNumber, endLineNumber, startColumn, endColumn } = range;
-    monaco.editor.setModelMarkers(
-      editor.getModel(),
-      'eslint',
-      [{
-        startLineNumber,
-        endLineNumber,
-        startColumn,
-        endColumn,
-        severity: monaco.MarkerSeverity[type], // type可以是Error,Warning,Info
-        message,
-      }],
-    );
-  }
-
-  function formatSql(needValue: number) {
-    clearMistake();
-    try {
-      editor.setValue(format(editor.getValue()));
-    } catch (e) {
-      const { message } = e;
-      const list = message.split(' ');
-      const line = list.indexOf('line');
-      const column = list.indexOf('column');
-      markMistake({
-        startLineNumber: Number(list[line + 1]),
-        endLineNumber: Number(list[line + 1]),
-        startColumn: Number(list[column + 1]),
-        endColumn: Number(list[column + 1]),
-      }, 'Error', message);
-    }
-    if (needValue) {
-      return editor.getValue();
-    }
-  }
-
   function getTableSuggest() {
     if (!tableNames?.length) {
       return [];
@@ -134,5 +80,9 @@ export default function useSqlMode(
       detail: 'param',
     }));
   }
+
+  onBeforeMount(() => {
+    suggestion?.dispose?.();
+  });
 }
 
