@@ -10,8 +10,9 @@ module.exports = {
       // outputDir: __dirname + '/dist',// 打包输出目录
       assetsDir: '',
       devServer: {
-        host: 'local.zhoulujun.net',
-        port: 9013,
+        host: '127.0.0.1',
+        // host: 'local.zhoulujun.net',
+        port: 9014,
       }
     }
     if (isProduction) {

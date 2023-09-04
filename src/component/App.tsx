@@ -21,6 +21,7 @@ export default defineComponent({
           <MonacoEditor
             theme="vs-dark"
             language="sql"
+            title="SQL查询语句"
             v-model={this.formData.query_text}
           >
             {{

@@ -9,15 +9,24 @@ export const props = {
     type: String,
     default: '',
   },
-  showToolbox: {
+  isShowHeader: {
     type: Boolean,
     default: true,
   },
-  diffEditor: {
+  isShowToolbox: {
     type: Boolean,
-    default: false,
+    default: true,
   },
-  isFull: {
+  title: String,
+  isShowTooltips: {
+    type: Boolean,
+    default: true,
+  },
+  tooltips: {
+    type: Object as PropType<Record<string, string>>,
+  },
+  currentLang: String,
+  diffEditor: {
     type: Boolean,
     default: false,
   },
@@ -33,10 +42,6 @@ export const props = {
     type: String || Number,
     default: '100%',
   },
-  keywords: {
-    type: Array as PropType<string[]>,
-    default: (): string[] => [],
-  },
   theme: {
     type: String,
     default: 'vs-dark',
@@ -48,27 +53,21 @@ export const props = {
     type: Object as PropType<Record<string, any>>,
     default: () => ({}),
   },
-  tooltips: {
-    type: Object as PropType<Record<string, string>>,
-  },
-  isShowTooltips: {
-    type: Boolean,
-    default: true,
-  },
-  tableNames: {
-    type: Array as PropType<string[]>,
-    default: (): string[] => [],
-  },
-  tableFields: {
-    type: Object as PropType<Record<string, []>>,
-    default: (): Record<string, []> => ({}),
-  },
-  dbName: {
-    type: String,
-  },
-  suggestion: {
-    type: Boolean,
-    default: true,
-  },
+  // tableNames: {
+  //   type: Array as PropType<string[]>,
+  //   default: (): string[] => [],
+  // },
+  // tableFields: {
+  //   type: Object as PropType<Record<string, []>>,
+  //   default: (): Record<string, []> => ({}),
+  // },
+  // dbName: {
+  //   type: String,
+  // },
+  // suggestion: {
+  //   type: Boolean,
+  //   default: true,
+  // },
+
 };
 export type MonacoEditorProps = ExtractPropTypes<typeof props>;

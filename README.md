@@ -5,9 +5,9 @@ Monaco Editor is the code editor that powers VS Code, now it's available as a Vu
 ```json
 {
   "peerDependencies": {
-    "vue": "^3.2.37",
-    "monaco-editor": "^0.34.0",
-    "monaco-promql": "^1.7.4"
+    "bkui-vue": "^0.0.2-beta.25",
+    "monaco-editor": "^0.41.0",
+    "vue": "^3.2.37"
   }
 }
 ```
@@ -81,16 +81,24 @@ export default defineComponent({
 ```
 ## Props
 
-| Name            | Type                                        | Default   | Description                                                                                                                                              | remark |
-|-----------------|---------------------------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------| --- |
-| v-model         | `string`                                    |           | default value of the current model                                                                                                                       |  |
-| language        | `string`                                    |           | language of the current model                                                                                                                            | languages supported by `monaco-editor` [view here](https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages) |
-| theme           | `string`                                    | `vs-dark` | VS code theme                                                                                                                                            | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
-| showToolbox     | `boolean`                                   | `true`    | whether show  Toolbox                                                                                                                                           | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
-| options         | `object`                                    | `{}`      | [IStandaloneEditorConstructionOptions](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneEditorConstructionOptions.html) |  |
-| width           | `number` \                                  | `string`  | `100%`                                                                                                                                                   | container width |  |
-| height          | `number` \                                  | `string`  | `100%`                                                                                                                                                   | container height |  |
-| onBeforeMount   | `(monaco: Monaco, dom:HTMLElement) => void` |           | execute before the editor instance is created                                                                                                            |  |
+| Name          | Type          | Default | Description                                                                                                                                              | remark |
+|---------------|---------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------| --- |
+| v-model       | `string`      |         | default value of the current model                                                                                                                       |  |
+| language      | `string`      |         | language of the current model                                                                                                                            | languages supported by `monaco-editor` [view here](https://github.com/microsoft/monaco-editor/tree/main/src/basic-languages) |
+| theme         | `string`      | `vs-dark` | VS code theme                                                                                                                                            | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| diffEditor  | `boolean`     | `false`  |                                                                                                                                                          | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| isShowHeader  | `boolean`     | `true`  | whether show  header                                                                                                                                     | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| title         | `string`      | ``      | title content                                                                                                                                            | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| isShowToolbox | `boolean`     | `true`  | whether show  Toolbox                                                                                                                                    | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| isShowTooltips | `boolean`     | `true`  | whether show  Toolbox  Tooltips                                                                                                                                  | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| currentLang | `string`     |     | Toolbox tooltips defualt lang                                                                                                                            | theme of the `monaco-editor` | `monaco.editor.defineTheme(...)` |
+| tooltips       | `object`      |         |                                                                                                                                                          |  |
+| options       | `object`      | `{}`    | [IStandaloneEditorConstructionOptions](https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneEditorConstructionOptions.html) |  |
+| width         | `number`      | `string` | `100%`                                                                                                                                                   | container width |  |
+| height        | `number`      | `string` | `100%`                                                                                                                                                   | container height |  |
+| onBeforeMount | `(monaco: Monaco, dom:HTMLElement) => void` |         | execute before the editor instance is created                                                                                                            |  |
+
+
 
 ## Event
 
@@ -105,3 +113,51 @@ export default defineComponent({
 |------------------|-------------------------|
 | loading          | Before Monaco init show |  
 | tools            | tools                   |  
+| title            | title                   |  
+
+## expose
+
+```javascript
+ expose({
+      isFull,
+      style,
+      editor,
+      domRef,
+      loading,
+      formatContext,
+      fullScreen,
+    });
+```
+
+### tooltips
+tools tooltips
+
+| props  | value                   |                                                                                                                                    
+|--------|-------------------------|
+| format | Format |  
+| fullScreen  | Full Screen                   |  
+| exitScreen  | Exit Full Screen                   |  
+| adjustFontSize  | Adjusting the font size                  |
+```javascript
+function getTooltips() {
+      if (props?.tooltips) {
+        return props.tooltips;
+      }
+      const currentLang = props?.currentLang ?? localStorage.getItem('blueking_language');
+
+      if (currentLang === 'en') {
+        return {
+          format: 'Format',
+          fullScreen: 'Full Screen',
+          exitScreen: 'Exit Full Screen',
+          adjustFontSize: 'Adjusting the font size',
+        };
+      }
+      return {
+        format: '格式化',
+        fullScreen: '全屏',
+        exitScreen: '退出全屏',
+        adjustFontSize: '调整字号大小',
+      };
+    }
+```
