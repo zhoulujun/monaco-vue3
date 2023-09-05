@@ -15,6 +15,7 @@ import { bkTooltips } from 'bkui-vue';
 import { Code, FilliscreenLine, UnfullScreen } from 'bkui-vue/lib/icon';
 import { format } from 'sql-formatter';
 import { props } from '@/component/monaco/props';
+import { debounce } from 'bkui-vue/lib/shared';
 
 
 export default defineComponent({
@@ -44,6 +45,9 @@ export default defineComponent({
       };
     });
     const tooltips: Record<string, string> = getTooltips();
+    watch(() => [props.height, props.width], () => {
+      resize();
+    });
 
     function getTooltips() {
       if (props?.tooltips) {
@@ -153,6 +157,10 @@ export default defineComponent({
       }
     }
 
+    const resize = debounce(200, () => {
+      editor.value?.layout();
+    });
+
     function fullScreen() {
       isFull.value = !isFull.value;
       nextTick(() => {
@@ -160,9 +168,6 @@ export default defineComponent({
       });
     }
 
-    function resize() {
-      editor.value?.layout();
-    }
 
     onMounted(() => {
       initMonaco();
