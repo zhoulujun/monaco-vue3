@@ -156,8 +156,12 @@ export default defineComponent({
     function fullScreen() {
       isFull.value = !isFull.value;
       nextTick(() => {
-        editor.value?.layout();
+        resize();
       });
+    }
+
+    function resize() {
+      editor.value?.layout();
     }
 
     onMounted(() => {
@@ -199,8 +203,10 @@ export default defineComponent({
       editor,
       domRef,
       loading,
+      clearMistake,
       formatContext,
       fullScreen,
+      resize,
     });
 
 

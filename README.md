@@ -119,14 +119,16 @@ export default defineComponent({
 
 ```javascript
  expose({
-      isFull,
-      style,
-      editor,
-      domRef,
-      loading,
-      formatContext,
-      fullScreen,
-    });
+  isFull,
+  style,
+  editor,
+  domRef,
+  loading,
+  clearMistake,
+  formatContext,
+  fullScreen,
+  resize,
+});
 ```
 
 ### tooltips

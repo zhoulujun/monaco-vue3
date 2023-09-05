@@ -1,6 +1,6 @@
 {
   "name": "monaco-vue3-editor",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "monaco vue3 editor，集成了 monaco-promql,简单易用的代码编辑器。",
   "main": "dist/index.js",
   "scripts": {
