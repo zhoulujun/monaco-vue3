@@ -262,10 +262,12 @@ export default defineComponent({
           style={style.value}
         >
           {loading.value ? slots.loading?.() ?? '' : ''}
-          <div class="monaco-editor-header">
-            <div class="monaco-editor-title">{slots?.title?.() ?? props?.title}</div>
-            {toolsRender()}
-          </div>
+          {props.isShowHeader ? (
+            <div class="monaco-editor-header">
+              <div class="monaco-editor-title">{slots?.title?.() ?? props?.title}</div>
+              {toolsRender()}
+            </div>
+          ) : ''}
           <div ref={domRef} class="monaco-editor-content"/>
         </div>
       );
