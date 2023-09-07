@@ -268,7 +268,7 @@ export default defineComponent({
               {toolsRender()}
             </div>
           ) : ''}
-          <div ref={domRef} class="monaco-editor-content"/>
+          <div ref={domRef} class={['monaco-editor-content', { 'monaco-editor-full': !props.isShowHeader }]}/>
         </div>
       );
     };
