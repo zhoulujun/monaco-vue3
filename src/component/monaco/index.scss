@@ -11,8 +11,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 16px;
-    background: #3D3D3D;
+    height: 40px;
+    padding: 0 16px;
+    background: rgb(46, 46, 46);
+    box-shadow: 0 2px 4px 0 #00000029;
   }
 
   &-title {
@@ -26,11 +28,18 @@
     justify-content: flex-end;
 
     .tools-item {
+      width: 28px;
+      height: 28px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: #fff;
       font-size: 16px;
-      padding: 0 2px;
-      margin-left: 8px;
+      &:hover{
+        background: rgb(66, 66, 66);
+      }
     }
   }
 
